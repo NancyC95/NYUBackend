@@ -1,5 +1,6 @@
 package record;
 
+import json.get.CourseJson;
 import json.get.UserJson;
 
 import java.sql.Connection;
@@ -29,6 +30,32 @@ public class RecordGetter extends Record {
                 userJson.setSchoolName(result.getString(6));
 
                 return userJson.toJson();
+            }
+        } catch (NullPointerException npe) {
+            npe.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getCourses(String courseId) throws SQLException {
+        final String sqlString = "SELECT school_name, subject, course_number, prof_first_name, prof_last_name " +
+                "FROM publc.course WHERE course_id = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement preparedStatement = conn.prepareStatement(sqlString)) {
+            preparedStatement.setString(1, courseId);
+
+            ResultSet result = preparedStatement.executeQuery();
+
+            if (result.next()) {
+                CourseJson courseJson = new CourseJson();
+
+                courseJson.setSchoolName(result.getString(1));
+                courseJson.setSubject(result.getString(2));
+                courseJson.setCourseNum(result.getInt(3));
+                courseJson.setProfFirstName(result.getString(4));
+                courseJson.setProfLastName(result.getString(5));
+
+                return courseJson.toJson();
             }
         } catch (NullPointerException npe) {
             npe.printStackTrace();
